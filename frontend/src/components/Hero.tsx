@@ -19,7 +19,7 @@ const Hero: React.FC<HeroProps> = ({ title, subtitle, ctaText }) => {
                 {!user ?
                     (
                         <button 
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl hover:bg-blue-900 hover:scale-105 transition text-xl ring-2 rind-blue-400/40 hover:ring-blue-700 drop-shadow-lg"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white font-bold py-4 px-10 rounded-2xl shadow-2xl hover:bg-blue-900 hover:scale-105 transition text-xl ring-2 ring-blue-400/40 hover:ring-blue-700 drop-shadow-lg"
                             style={{
                                 boxShadow: "0 6px 32px 0 rgba(60,30,130,0.25)"
                             }}
@@ -48,18 +48,19 @@ const Hero: React.FC<HeroProps> = ({ title, subtitle, ctaText }) => {
                                        transition-transform text-xl ring-2 ring-green-400/40 hover:ring-green-600
                                        drop-shadow-lg"
                             style={{
-                                boxShadow: "0 6px 32px 0 rgba(30, 100, 60, 0.25"
+                                boxShadow: "0 6px 32px 0 rgba(30, 100, 60, 0.25)"
                             }}
                         >
                             <span>Let's mint certificate</span>
                             <svg
-                                className="w-6 h-6 text-white"
+                                className="w-6 h-6 text-white transition-transform group-hover:translate-x-1"
+                                viewBox="0 0 24 24"
                                 fill="none"
                                 stroke="currentColor"
-                                strokeWidth="3"
-                                viewBox="0 0 24 24"
+                                strokeWidth="2"
                             >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                                <path d="M3 12H20" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M20 12l-6-6M20 12l-6 6" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                         </Link>
                     )
