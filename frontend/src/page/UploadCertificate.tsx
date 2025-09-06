@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { normalizeBytes32, hashPdfFile } from "../utils/cryptography";
 import { isPdfHashUsed, mintCertificateNFT } from "../utils/tools";
-
+import { useUser } from "@civic/auth-web3/react"
 
 const LOCALHOST_LINK=import.meta.env.VITE_LOCALHOST_LINK;
 
@@ -14,6 +14,16 @@ const UploadCertificatePage: React.FC = () => {
     const [result, setResult] = useState<VerifyResult | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [hashPdf, setHashPdf] = useState<string | null>(null);
+    const userCtx = useUser();
+
+    const getCivicToken = async () => {
+      if (typeof (userCtx as any)?.getIdToken === "function") {
+        return await (userCtx as any).getIdToken();
+      }
+      const tok = (userCtx as any)?.idToken;
+      if (!tok) throw new Error("Missing Civic ID token. Please sign in.");
+      return tok;
+    }
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -50,8 +60,14 @@ const UploadCertificatePage: React.FC = () => {
             });
 
             if (!res.ok) {
-                const errorData = await res.json();
-                setError(errorData.details || "Failed to verify certificate");
+                let msg = "Failed to verify certificate";
+                try {
+                  const errorData = await res.json();
+                  msg = errorData.detail || JSON.stringify(errorData);
+                } catch {
+                  msg = await res.text();
+                }
+                setError(msg);
                 setLoading(false);
                 return;
             }
@@ -144,7 +160,15 @@ const UploadCertificatePage: React.FC = () => {
                 </div>
                 <button
                   className="w-full mt-6 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold py-3 rounded-xl transition-colors duration-200"
-                  onClick={() => mintCertificateNFT(result.fields, selectedFile, hashPdf)}
+                  onClick={() => 
+                    mintCertificateNFT(
+                      result.fields, 
+                      selectedFile!, 
+                      hashPdf,
+                      getCivicToken,
+                      false, // useRelayer=false (set true to go gasless)
+                    )
+                  }
                 >
                   Mint Certificate NFT
                 </button>

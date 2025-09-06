@@ -71,7 +71,126 @@ export const uploadBlobToIpfs = async (blob: Blob): Promise<string> => {
 }
 
 
-export const mintCertificateNFT = async (fields: Record<string, any>, file: File, pdfHash: string | null) => {
+export const mintCertificateNFT = async (
+  fields: Record<string, any>,
+  file: File,
+  pdfHash: string | null,
+  getCivicToken: () => Promise<string>,
+  useRelayer = false
+) => {
+  if (!pdfHash) throw new Error("Missing PDF hash");
+
+  const key = await deriveSymmetricKeyFromMetaMask();
+
+  const fileBytes = new Uint8Array(await file.arrayBuffer());
+  const encryptedPdf = aesEncryptBytes(fileBytes, key);
+  const encryptedPdfBlob = new Blob([encryptedPdf], { type: "application/octet-stream"});
+  const encryptedPdfIpfsUrl = await uploadBlobToIpfs(encryptedPdfBlob);
+
+  const fieldsWithPdf = { ...fields, certificate_ipfs_url: encryptedPdfIpfsUrl };
+  const encryptedFieldsBytes = aesEncryptJson(fieldsWithPdf, key);
+  const encryptedFieldsBlob = new Blob([encryptedFieldsBytes], { type: "application/octet-stream" });
+  const encryptedFieldsIpfsUrl = await uploadBlobToIpfs(encryptedFieldsBlob);
+
+  const tokenURI = encryptedFieldsIpfsUrl.trim();
+
+  const contractMeta = await fetchCertificateContractMeta();
+  if (!(window as any).ethereum) throw new Error("MetaMask not found");
+  await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+  const web3Provider = getBrowserProvider();
+  const signer = await web3Provider.getSigner();
+  const userAddress = await signer.getAddress();
+
+  const jwt = await getCivicToken();
+
+  const network = await web3Provider.getNetwork();
+  const clientChainId = Number(network.chainId);
+  
+  const signRes = await fetch(`${VITE_LOCALHOST_LINK}/api/sign-mint`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${jwt}`,
+    },
+    body: JSON.stringify({
+      to: userAddress,
+      tokenURI,            
+      pdfHash: pdfHash,    
+      chainId: clientChainId,
+    }),
+  });
+
+  if (!signRes.ok) {
+    const txt = await signRes.text();
+    throw new Error(`sign-mint failed: ${txt}`)
+  }
+  
+  const { signature, deadline } = await signRes.json(); 
+  const finalDeadline = Number(deadline);
+
+  try {
+    if (useRelayer) {
+      // Gasless path
+      const relayRes = await fetch(`${VITE_LOCALHOST_LINK}/api/relay-mint`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({
+          to: userAddress,
+          tokenURI: encryptedFieldsIpfsUrl,
+          pdfHash,
+          deadline: finalDeadline,
+          signature,
+        }),
+      });
+      if (!relayRes.ok) {
+        const txt = await relayRes.text();
+        throw new Error(`relay-mint failed: ${txt}`)
+      }
+      const data = await relayRes.json()
+      alert(`Certificate NFT minted! Token ID: ${data.tokenId ?? "unknown"} (tx: ${data.txHash})`);
+      return { tokenId: data.tokenId, tokenURI: encryptedFieldsIpfsUrl};
+    }
+
+    // User-pays-gass path
+    const contract = new Contract(contractMeta.address, contractMeta.abi, signer);
+    const args = [userAddress, tokenURI, pdfHash, finalDeadline, signature] as const;
+
+    const fn = contract.getFunction("mintWithIssuerSig");
+    await fn.staticCall(...args);           // simulate
+    const tx = await fn(...args);           // send tx
+
+    const receipt = await tx.wait();
+
+    let tokenId: string | undefined;
+    for (const log of receipt.logs) {
+      try {
+        const parsed = contract.interface.parseLog(log);
+        if (parsed?.name === "CertificateMinted") {
+          tokenId = parsed.args.tokenId?.toString() ?? parsed.args[1]?.toString();
+          break;
+        }
+      } catch { }
+    }
+
+    // Sanity-read tokenURI
+    let chainTokenURI = "";
+    try {
+      if (tokenId) chainTokenURI = await contract.tokenURI(tokenId);
+    } catch { }
+
+    alert(`Certificate NFT minted! Token ID: ${tokenId ?? "unknown"}`);
+    return { tokenId, tokenURI: chainTokenURI || encryptedFieldsIpfsUrl };
+  } catch (error: any) {
+    console.error("[mintCertificateNFT] Minting failed:", error);
+    alert("Minting failed: " + (error.reason || error.message));
+    throw error;
+  }
+}
+
+export const mintCertificateNFT2 = async (fields: Record<string, any>, file: File, pdfHash: string | null) => {
   
   const key = await deriveSymmetricKeyFromMetaMask();
 

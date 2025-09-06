@@ -1,10 +1,22 @@
 1) The problem is that it takes too long to sign in the second time.
 2) Next, I need to think about the accessKey (using @civic/auth-verify or the SDK)
-5) Write a zkProof for verifying the name in the certificate with your name.
-6) Write AllCertificatePage.
-7) Write the docker-compose file.
-8) As a future wokr, I will add the merkle tree, if I have the time
-9) Also i need think about the civic wallet, how it work(how connected to )
+3) Write a zkProof for verifying the name in the certificate with your name.
+4) Write AllCertificatePage.
+5) Write the docker-compose file.
+6) As a future wokr, I will add the merkle tree, if I have the time
+7) Also i need think about the civic wallet, how it work(how connected to )
+8) Secure endpoints usign the CIVIC
+9) Fix the problem when user reload the page, it redirect him to home, (its bad)
+10) Check what fields is used for building the merkle tree
+11) Fix this errors
+content.bundle.js:4735 Refused to create a worker from 'blob:https://auth.metakeep.xyz/0dc310ef-0dd8-4c4e-b8a1-b6bcbe43286c' because it violates the following Content Security Policy directive: "script-src 'self'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
 
+content.bundle.js:4735 Refused to create a worker from 'blob:https://auth.metakeep.xyz/0dc310ef-0dd8-4c4e-b8a1-b6bcbe43286c' because it violates the following Content Security Policy directive: "script-src 'self'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+content.bundle.js:4735 Refused to create a worker from 'blob:https://auth.metakeep.xyz/d4561b5b-4aaf-454c-9090-50f32ec1de3f' because it violates the following Content Security Policy directive: "script-src 'self'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+content.bundle.js:4735 Refused to create a worker from 'blob:https://auth.metakeep.xyz/48952ca0-9342-4846-bd0e-2a193b9b19a2' because it violates the following Content Security Policy directive: "script-src 'self'". Note that 'worker-src' was not explicitly set, so 'script-src' is used as a fallback.
+12) Also right now, we have the problem, that one account can use the different 
+13) Host frontend
+14) Host smart-contracts
+15) Host backend
 
 The last thing is the docs: Auth-MCP / npm @civic/auth-mcp to add authentication and user context to your existing MCP server. This gets you extra credit!

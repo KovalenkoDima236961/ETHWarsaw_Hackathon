@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "@civic/auth-web3/react";
 import { userHasWallet } from "@civic/auth-web3";
 import { useAccount, useConnect } from "wagmi";
+// import { decodeJwtPayload } from "../utils/jwt";
 
 const POST_SIGNIN_REDIRECT_KEY = "postSignInRedirect";
 
@@ -31,6 +32,41 @@ const Header: React.FC = () => {
     }
   };
 
+  // Later I need to delete this code
+  // const getIdToken = async (): Promise<string> => {
+  //   if (!user) throw new Error("Not signed in");
+  //   const anyCtx = userCtx as any;
+  //   if (typeof anyCtx.getIdToken == "function") {
+  //     return await anyCtx.getIdToken();
+  //   }
+  //   const tok = anyCtx.idToken;
+  //   if (!tok) throw new Error("No ID token available");
+  //   return tok as string;
+  // }
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       if (!user) return;
+  //       const token = await getIdToken();
+  //       const claims = decodeJwtPayload<{ iss?: string; aud?: string; sub?: string }>(token);
+  //       if (claims.iss) {
+  //         console.log("[Civic] issuer (iss):", claims.iss);
+  //         localStorage.setItem("CIVIC_ISSUER", claims.iss);
+  //       }
+  //       if (claims.aud) {
+  //         console.log("[Civic] audience (aud):", claims.aud);
+  //         localStorage.setItem("CIVIC_AUDIENCE", String(claims.aud));
+  //       }
+  //       if (claims.sub) {
+  //         console.log("[Civic] subject (sub):", claims.sub);
+  //       }
+  //     } catch (e) {
+  //       console.warn("Failed to read Civic issuer from token:", e);
+  //     }
+  //   })();
+  // }, [user]);
+
   // After sign-in, bounce back to intended path if we stored one
   useEffect(() => {
     if (user) {
@@ -48,6 +84,7 @@ const Header: React.FC = () => {
       sessionStorage.setItem(POST_SIGNIN_REDIRECT_KEY, path);
       return signIn();
     }
+    
     navigate(path);
   };
 

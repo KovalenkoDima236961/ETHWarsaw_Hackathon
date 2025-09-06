@@ -127,3 +127,6 @@ wheel==0.45.1
 wsproto==1.2.0
 yarl==1.20.1
 zstandard==0.23.0
+web3
+eth-account>=0.9,<1
+python-jose[cryptography]
