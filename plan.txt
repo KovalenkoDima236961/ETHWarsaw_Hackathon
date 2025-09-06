@@ -1,10 +1,10 @@
 1) The problem is that it takes too long to sign in the second time.
 2) Next, I need to think about the accessKey (using @civic/auth-verify or the SDK)
-3) Provide authorization for pages.
-4) Create minting pages.
 5) Write a zkProof for verifying the name in the certificate with your name.
 6) Write AllCertificatePage.
 7) Write the docker-compose file.
 8) As a future wokr, I will add the merkle tree, if I have the time
+9) Also i need think about the civic wallet, how it work(how connected to )
+
 
 The last thing is the docs: Auth-MCP / npm @civic/auth-mcp to add authentication and user context to your existing MCP server. This gets you extra credit!

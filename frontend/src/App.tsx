@@ -1,13 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./page/Home";
+import UploadCertificatePage from "./page/UploadCertificate";
+import RequireAuth from "./auth/RequireAuth";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { embeddedWallet } from "@civic/auth-web3/wagmi";
 import { CivicAuthProvider } from "@civic/auth-web3";
 import { mainnet, sepolia } from "viem/chains";
-import UploadCertificatePage from "./page/UploadCertificate";
 
 const CLIENT_ID = import.meta.env.VITE_CIVIC_CLIENT_ID;
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER || "https://auth.civic.com/oauth";
@@ -40,8 +41,10 @@ const App: React.FC = () => {
             <div className="min-h-screen flex flex-col">
               <Routes>
                 <Route path="/" element={ <Home />} />
-                <Route path="/certificates" element={ <Home />} />
-                <Route path="/uploadCert" element={ <UploadCertificatePage />} />
+                <Route element={<RequireAuth />}>
+                  <Route path="/certificates" element={ <Home />} />
+                  <Route path="/uploadCert" element={ <UploadCertificatePage />} />
+                </Route>                
               </Routes>
             </div>
           </Router>
